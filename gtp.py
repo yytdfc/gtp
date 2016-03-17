@@ -100,9 +100,7 @@ def format_success(message_id, response=None):
 
 
 def format_error(message_id, response):
-    if response is None:
-        response = ""
-    else:
+    if response:
         response = " {}".format(response)
     if message_id:
         return "?{}{}\n\n".format(message_id, response)
