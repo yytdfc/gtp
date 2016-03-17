@@ -4,6 +4,8 @@ import unittest
 
 from gtp import pre_engine, pre_controller
 from gtp import parse_message, parse_move
+from gtp import gtp_boolean, gtp_list, gtp_color, gtp_vertex, gtp_move
+
 from gtp import BLACK, WHITE
 from gtp import Engine
 
@@ -37,6 +39,27 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(parse_move("B D4"), (BLACK, 4, 4))
         self.assertFalse(parse_move("C X"))
         self.assertEqual(parse_move("WHITE q16 XXX"), (WHITE, 16, 16))
+
+
+class FormatTest(unittest.TestCase):
+
+    def test_gtp_boolean(self):
+        self.assertEqual(gtp_boolean(True), "true")
+        self.assertEqual(gtp_boolean(False), "false")
+
+    def test_gtp_list(self):
+        self.assertEqual(gtp_list(["foo", "bar"]), "foo\nbar")
+
+    def test_gtp_color(self):
+        self.assertEqual(gtp_color(BLACK), "B")
+        self.assertEqual(gtp_color(WHITE), "W")
+
+    def test_gtp_vertex(self):
+        self.assertEqual(gtp_vertex(4, 4), "D4")
+        self.assertEqual(gtp_vertex(16, 16), "Q16")
+
+    def test_gtp_move(self):
+        self.assertEqual(gtp_move(BLACK, 3, 2), "B C2")
 
 
 class CommandsTest(unittest.TestCase):

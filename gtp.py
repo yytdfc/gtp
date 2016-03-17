@@ -32,7 +32,7 @@ def gtp_vertex(x, y):
 
 
 def gtp_move(color, x, y):
-    return " ".join(gtp_color(color), gtp_vertex(x, y))
+    return " ".join([gtp_color(color), gtp_vertex(x, y)])
 
 
 def parse_message(message):
