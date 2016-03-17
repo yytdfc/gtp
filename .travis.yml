@@ -7,6 +7,9 @@ python:
   - "3.5"
 install:
   - pip install flake8
+  - pip install coveralls
 script:
   - flake8 .
-  - ./gtp.py
+  - coverage run --branch ./gtp.py
+after_success:
+  - coveralls
