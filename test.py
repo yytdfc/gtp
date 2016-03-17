@@ -38,6 +38,7 @@ class ParseTest(unittest.TestCase):
         self.assertFalse(parse_move("C X"))
         self.assertEqual(parse_move("WHITE q16 XXX"), (WHITE, 16, 16))
 
+
 class CommandsTest(unittest.TestCase):
 
     def setUp(self):
@@ -64,14 +65,16 @@ class CommandsTest(unittest.TestCase):
         self.assertEqual(response, "=5 false\n\n")
 
         response = self.engine.send("6 list_commands\n")
-        self.assertEqual(response, "=6 protocol_version\nname\nversion\n" \
-            "known_command\nlist_commands\nquit\nboardsize\nclear_board\n" \
-            "komi\nplay\ngenmove\n\n")
+        self.assertEqual(
+            response,
+            "=6 protocol_version\nname\nversion\nknown_command\n"
+            "list_commands\nquit\nboardsize\nclear_board\nkomi\n"
+            "play\ngenmove\n\n")
 
         response = self.engine.send("99 quit\n")
         self.assertEqual(response, "=99\n\n")
 
-    def test_admin_commands(self):
+    def test_core_play_commands(self):
         response = self.engine.send("7 boardsize 100")
         self.assertEqual(response, "?7 unacceptable size\n\n")
         response = self.engine.send("8 boardsize 19")
