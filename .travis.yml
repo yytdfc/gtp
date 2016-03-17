@@ -10,6 +10,6 @@ install:
   - pip install coveralls
 script:
   - flake8 .
-  - coverage run --branch ./gtp.py
+  - coverage run --branch --source gtp.py ./test.py
 after_success:
   - coveralls
