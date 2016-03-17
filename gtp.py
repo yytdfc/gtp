@@ -1,4 +1,3 @@
-from functools import wraps
 import re
 
 
@@ -122,7 +121,8 @@ class Engine(object):
 
         self.disconnect = False
 
-        self.known_commands = [field[4:] for field in dir(self) if field.startswith("cmd_")]
+        self.known_commands = [
+            field[4:] for field in dir(self) if field.startswith("cmd_")]
 
     def clear(self):
         self.board_configuration = [EMPTY] * (self.size * self.size)
@@ -134,7 +134,8 @@ class Engine(object):
         message_id, command, arguments = parse_message(message)
         if command in self.known_commands:
             try:
-                return format_success(message_id, getattr(self, "cmd_" + command)(arguments))
+                return format_success(
+                    message_id, getattr(self, "cmd_" + command)(arguments))
             except ValueError as exception:
                 return format_error(message_id, exception.args[0])
         else:
