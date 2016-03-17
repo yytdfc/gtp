@@ -1,3 +1,4 @@
+from functools import wraps
 import re
 
 
@@ -88,29 +89,26 @@ MIN_BOARD_SIZE = 7
 MAX_BOARD_SIZE = 19
 
 
-KNOWN_COMMANDS = [
+def format_success(message_id, response=None):
+    if response is None:
+        response = ""
+    else:
+        response = " {}".format(response)
+    if message_id:
+        return "={}{}\n\n".format(message_id, response)
+    else:
+        return "={}\n\n".format(response)
 
-    # 6.3.1 Administrative Commands
-    "protocol_version", "name", "version",
-    "known_command", "list_commands", "quit",
 
-    # 6.3.2 Setup Commands
-    "boardsize", "clear_board", "komi",
-    # "fixed_handicap", "place_free_handicap", "set_free_handicap",
-
-    # 6.3.3 Core Play Commands
-    "play", "genmove",
-    # "undo",
-
-    # 6.3.4 Tournament Commands
-    # "time_settings", "time_left", "final_score", "final_status_list",
-
-    # 6.3.5 Regression Commands
-    # "loadsgf", "reg_genmove",
-
-    # 6.3.6 Debug Commands
-    # "showboard",
-]
+def format_error(message_id, response):
+    if response is None:
+        response = ""
+    else:
+        response = " {}".format(response)
+    if message_id:
+        return "?{}{}\n\n".format(message_id, response)
+    else:
+        return "?{}\n\n".format(response)
 
 
 class Engine(object):
@@ -124,6 +122,8 @@ class Engine(object):
 
         self.disconnect = False
 
+        self.known_commands = [field[4:] for field in dir(self) if field.startswith("cmd_")]
+
     def clear(self):
         self.board_configuration = [EMPTY] * (self.size * self.size)
         self.captured_B = 0
@@ -132,108 +132,13 @@ class Engine(object):
 
     def send(self, message):
         message_id, command, arguments = parse_message(message)
-        if command == "protocol_version":
-            return self.success(message_id, self.protocol_version(arguments))
-        elif command == "name":
-            return self.success(message_id, self.name(arguments))
-        elif command == "version":
-            return self.success(message_id, self.version(arguments))
-        elif command == "known_command":
-            return self.success(message_id, self.known_command(arguments))
-        elif command == "list_commands":
-            return self.success(message_id, self.list_commands(arguments))
-        elif command == "quit":
-            return self.success(message_id, self.quit(arguments))
-        elif command == "boardsize":
-            if self.boardsize(arguments):
-                return self.success(message_id)
-            else:
-                return self.error(message_id, "unacceptable size")
-        elif command == "clear_board":
-            return self.success(message_id, self.clear_board(arguments))
-        elif command == "komi":
-            if self.set_komi(arguments):
-                return self.success(message_id)
-            else:
-                return self.error(message_id, "syntax error")
-        elif command == "play":
-            if self.play(arguments):
-                return self.success(message_id)
-            else:
-                return self.error(message_id, "illegal move")
-        elif command == "genmove":
-            return self.success(message_id, self.genmove(arguments))
+        if command in self.known_commands:
+            try:
+                return format_success(message_id, getattr(self, "cmd_" + command)(arguments))
+            except ValueError as exception:
+                return format_error(message_id, exception.args[0])
         else:
-            return self.error(message_id, "unknown command")
-
-    def success(self, message_id, response=""):
-        if response:
-            response = " {}".format(response)
-        if message_id:
-            return "={}{}\n\n".format(message_id, response)
-        else:
-            return "={}\n\n".format(response)
-
-    def error(self, message_id, response):
-        if response:
-            response = " {}".format(response)
-        if message_id:
-            return "?{}{}\n\n".format(message_id, response)
-        else:
-            return "?{}\n\n".format(response)
-
-    def protocol_version(self, arguments):
-        return 2
-
-    def name(self, arguments):
-        return "gtp (python library)"
-
-    def version(self, arguments):
-        return "0.1"
-
-    def known_command(self, arguments):
-        return gtp_boolean(arguments in KNOWN_COMMANDS)
-
-    def list_commands(self, arguments):
-        return gtp_list(KNOWN_COMMANDS)
-
-    def quit(self, arguments):
-        self.disconnect = True
-        return ""
-
-    def boardsize(self, arguments):
-        if arguments.isdigit:
-            size = int(arguments)
-            if MIN_BOARD_SIZE <= size <= MAX_BOARD_SIZE:
-                self.size = size
-                return True
-            else:
-                return False
-
-    def clear_board(self, arguments):
-        self.clear()
-        return ""
-
-    def set_komi(self, arguments):
-        try:
-            self.komi = float(arguments)
-            return True
-        except ValueError:
-            return False
-
-    def play(self, arguments):
-        move = parse_move(arguments)
-        if move:
-            color, x, y = move
-            if 1 <= x <= self.size and 1 <= y <= self.size:
-                if self.make_move(color, x, y):
-                    return True
-        return False
-
-    def genmove(self, arguments):
-        parse_color(arguments)
-        # @@@ return a fixed vertex for now
-        return gtp_vertex(16, 16)
+            return format_error(message_id, "unknown command")
 
     def make_move(self, color, x, y):
         offset = self.size * (x - 1) + y - 1
@@ -243,3 +148,54 @@ class Engine(object):
         self.board_configuration[offset] = color
         self.move_history.append((color, x, y))
         return True
+
+    # commands
+
+    def cmd_protocol_version(self, arguments):
+        return 2
+
+    def cmd_name(self, arguments):
+        return "gtp (python library)"
+
+    def cmd_version(self, arguments):
+        return "0.1"
+
+    def cmd_known_command(self, arguments):
+        return gtp_boolean(arguments in self.known_commands)
+
+    def cmd_list_commands(self, arguments):
+        return gtp_list(self.known_commands)
+
+    def cmd_quit(self, arguments):
+        self.disconnect = True
+
+    def cmd_boardsize(self, arguments):
+        if arguments.isdigit:
+            size = int(arguments)
+            if MIN_BOARD_SIZE <= size <= MAX_BOARD_SIZE:
+                self.size = size
+            else:
+                raise ValueError("unacceptable size")
+
+    def cmd_clear_board(self, arguments):
+        self.clear()
+
+    def cmd_komi(self, arguments):
+        try:
+            self.komi = float(arguments)
+        except ValueError:
+            raise ValueError("syntax error")
+
+    def cmd_play(self, arguments):
+        move = parse_move(arguments)
+        if move:
+            color, x, y = move
+            if 1 <= x <= self.size and 1 <= y <= self.size:
+                if self.make_move(color, x, y):
+                    return
+        raise ValueError("illegal move")
+
+    def cmd_genmove(self, arguments):
+        parse_color(arguments)
+        # @@@ return a fixed vertex for now
+        return gtp_vertex(16, 16)

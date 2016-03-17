@@ -94,9 +94,8 @@ class CommandsTest(unittest.TestCase):
         response = self.engine.send("6 list_commands\n")
         self.assertEqual(
             response,
-            "=6 protocol_version\nname\nversion\nknown_command\n"
-            "list_commands\nquit\nboardsize\nclear_board\nkomi\n"
-            "play\ngenmove\n\n")
+            "=6 boardsize\nclear_board\ngenmove\nknown_command\nkomi\n"
+            "list_commands\nname\nplay\nprotocol_version\nquit\nversion\n\n")
 
         response = self.engine.send("99 quit\n")
         self.assertEqual(response, "=99\n\n")
