@@ -123,6 +123,13 @@ class CommandsTest(unittest.TestCase):
         # test player will always return this
         self.assertEqual(response, "=13 Q16\n\n")
 
+        response = self.engine.send("14 play black Z25")
+        self.assertEqual(response, "?14 illegal move\n\n")
+
+        response = self.engine.send("15 play white D4")
+        self.assertEqual(response, "?15 illegal move\n\n")
+
+
 
 if __name__ == "__main__":
     unittest.main()

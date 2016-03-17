@@ -240,6 +240,6 @@ class Engine(object):
         if self.board_configuration[offset] != EMPTY:
             return False
         # @@@ no other checks for now (e.g. suicide, ko)
-        self.board_configuration[offset] == color
+        self.board_configuration[offset] = color
         self.move_history.append((color, x, y))
         return True
