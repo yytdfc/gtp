@@ -38,6 +38,10 @@ class ParseTest(unittest.TestCase):
     def test_parse_move(self):
         self.assertEqual(parse_move("B D4"), (BLACK, 4, 4))
         self.assertFalse(parse_move("C X"))
+        self.assertFalse(parse_move("B 55"))
+        self.assertFalse(parse_move("B dd"))
+        self.assertFalse(parse_move("B X"))
+        self.assertFalse(parse_move("B"))
         self.assertEqual(parse_move("WHITE q16 XXX"), (WHITE, 16, 16))
 
 
