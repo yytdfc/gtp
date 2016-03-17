@@ -130,6 +130,5 @@ class CommandsTest(unittest.TestCase):
         self.assertEqual(response, "?15 illegal move\n\n")
 
 
-
 if __name__ == "__main__":
     unittest.main()
