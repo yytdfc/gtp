@@ -36,13 +36,13 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(parse_message(" "), (None, "", None))
 
     def test_parse_move(self):
-        self.assertEqual(parse_move("B D4"), (BLACK, 4, 4))
+        self.assertEqual(parse_move("B D4"), (BLACK, (4, 4)))
         self.assertFalse(parse_move("C X"))
         self.assertFalse(parse_move("B 55"))
         self.assertFalse(parse_move("B dd"))
         self.assertFalse(parse_move("B X"))
         self.assertFalse(parse_move("B"))
-        self.assertEqual(parse_move("WHITE q16 XXX"), (WHITE, 16, 16))
+        self.assertEqual(parse_move("WHITE q16 XXX"), (WHITE, (16, 16)))
 
 
 class FormatTest(unittest.TestCase):
@@ -59,11 +59,11 @@ class FormatTest(unittest.TestCase):
         self.assertEqual(gtp_color(WHITE), "W")
 
     def test_gtp_vertex(self):
-        self.assertEqual(gtp_vertex(4, 4), "D4")
-        self.assertEqual(gtp_vertex(16, 16), "Q16")
+        self.assertEqual(gtp_vertex((4, 4)), "D4")
+        self.assertEqual(gtp_vertex((16, 16)), "Q16")
 
     def test_gtp_move(self):
-        self.assertEqual(gtp_move(BLACK, 3, 2), "B C2")
+        self.assertEqual(gtp_move(BLACK, (3, 2)), "B C2")
 
 
 class CommandsTest(unittest.TestCase):

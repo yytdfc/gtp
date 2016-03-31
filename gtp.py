@@ -27,12 +27,16 @@ def gtp_color(color):
     return {BLACK: "B", WHITE: "W"}[color]
 
 
-def gtp_vertex(x, y):
-    return "{}{}".format("ABCDEFGHJKLMNOPQRSTYVWYZ"[x - 1], y)
+def gtp_vertex(vertex):
+    if vertex == PASS:
+        return "PASS"
+    else:
+        x, y = vertex
+        return "{}{}".format("ABCDEFGHJKLMNOPQRSTYVWYZ"[x - 1], y)
 
 
-def gtp_move(color, x, y):
-    return " ".join([gtp_color(color), gtp_vertex(x, y)])
+def gtp_move(color, vertex):
+    return " ".join([gtp_color(color), gtp_vertex(vertex)])
 
 
 def parse_message(message):
@@ -55,6 +59,8 @@ WHITE = -1
 BLACK = +1
 EMPTY = 0
 
+PASS = (0, 0)
+
 
 def parse_color(color):
     if color.lower() in ["b", "black"]:
@@ -65,23 +71,34 @@ def parse_color(color):
         return False
 
 
-def parse_move(move):
-    color, vertex = (move.split(" ") + [None])[:2]
-    color = parse_color(color)
-    if color is False:
+def parse_vertex(vertex_string):
+    if vertex_string is None:
         return False
-    if vertex and len(vertex) > 1:
-        x = "abcdefghjklmnopqrstuvwxyz".find(vertex[0].lower()) + 1
+    elif vertex_string.lower() == "pass":
+        return PASS
+    elif len(vertex_string) > 1:
+        x = "abcdefghjklmnopqrstuvwxyz".find(vertex_string[0].lower()) + 1
         if x == 0:
             return False
-        if vertex[1:].isdigit():
-            y = int(vertex[1:])
+        if vertex_string[1:].isdigit():
+            y = int(vertex_string[1:])
         else:
             return False
     else:
         return False
+    return (x, y)
 
-    return color, x, y
+
+def parse_move(move_string):
+    color_string, vertex_string = (move_string.split(" ") + [None])[:2]
+    color = parse_color(color_string)
+    if color is False:
+        return False
+    vertex = parse_vertex(vertex_string)
+    if vertex is False:
+        return False
+
+    return color, vertex
 
 
 MIN_BOARD_SIZE = 7
@@ -139,14 +156,21 @@ class Engine(object):
         else:
             return format_error(message_id, "unknown command")
 
-    def make_move(self, color, x, y):
-        offset = self.size * (x - 1) + y - 1
+    def make_move(self, color, vertex):
+        offset = self.size * (vertex[0] - 1) + vertex[1] - 1
         if self.board_configuration[offset] != EMPTY:
             return False
         # @@@ no other checks for now (e.g. suicide, ko)
         self.board_configuration[offset] = color
-        self.move_history.append((color, x, y))
+        self.move_history.append((color, vertex))
+
         return True
+
+    def vertex_in_range(self, vertex):
+        if 1 <= vertex[0] <= self.size and 1 <= vertex[1] <= self.size:
+            return True
+        else:
+            return False
 
     # commands
 
@@ -188,13 +212,13 @@ class Engine(object):
     def cmd_play(self, arguments):
         move = parse_move(arguments)
         if move:
-            color, x, y = move
-            if 1 <= x <= self.size and 1 <= y <= self.size:
-                if self.make_move(color, x, y):
+            color, vertex = move
+            if self.vertex_in_range(vertex):
+                if self.make_move(color, vertex):
                     return
         raise ValueError("illegal move")
 
     def cmd_genmove(self, arguments):
         parse_color(arguments)
         # @@@ return a fixed vertex for now
-        return gtp_vertex(16, 16)
+        return gtp_vertex((16, 16))
