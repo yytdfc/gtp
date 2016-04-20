@@ -193,12 +193,14 @@ class Engine(object):
         self.disconnect = True
 
     def cmd_boardsize(self, arguments):
-        if arguments.isdigit:
+        if arguments.isdigit():
             size = int(arguments)
             if MIN_BOARD_SIZE <= size <= MAX_BOARD_SIZE:
                 self.size = size
             else:
                 raise ValueError("unacceptable size")
+        else:
+            raise ValueError("non digit size")
 
     def cmd_clear_board(self, arguments):
         self.clear()
