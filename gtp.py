@@ -127,23 +127,20 @@ def format_error(message_id, response):
 
 class Engine(object):
 
-    def __init__(self):
+    def __init__(self, state_obj, player_obj):
 
         self.size = 19
         self.komi = 6.5
-        # self.time_settings
-        self.clear()
+
+        self._state = state_obj
+        self._player = player_obj
+
+        self._state.clear()
 
         self.disconnect = False
 
         self.known_commands = [
             field[4:] for field in dir(self) if field.startswith("cmd_")]
-
-    def clear(self):
-        self.board_configuration = [EMPTY] * (self.size * self.size)
-        self.captured_B = 0
-        self.captured_W = 0
-        self.move_history = []
 
     def send(self, message):
         message_id, command, arguments = parse_message(message)
@@ -155,16 +152,6 @@ class Engine(object):
                 return format_error(message_id, exception.args[0])
         else:
             return format_error(message_id, "unknown command")
-
-    def make_move(self, color, vertex):
-        offset = self.size * (vertex[0] - 1) + vertex[1] - 1
-        if self.board_configuration[offset] != EMPTY:
-            return False
-        # @@@ no other checks for now (e.g. suicide, ko)
-        self.board_configuration[offset] = color
-        self.move_history.append((color, vertex))
-
-        return True
 
     def vertex_in_range(self, vertex):
         if 1 <= vertex[0] <= self.size and 1 <= vertex[1] <= self.size:
@@ -197,15 +184,18 @@ class Engine(object):
             size = int(arguments)
             if MIN_BOARD_SIZE <= size <= MAX_BOARD_SIZE:
                 self.size = size
+                self._state.set_size(size)
             else:
                 raise ValueError("unacceptable size")
 
     def cmd_clear_board(self, arguments):
-        self.clear()
+        self._state.clear()
 
     def cmd_komi(self, arguments):
         try:
-            self.komi = float(arguments)
+            komi = float(arguments)
+            self.komi = komi
+            self._state.set_komi(komi)
         except ValueError:
             raise ValueError("syntax error")
 
@@ -214,11 +204,54 @@ class Engine(object):
         if move:
             color, vertex = move
             if self.vertex_in_range(vertex):
-                if self.make_move(color, vertex):
+                if self._state.make_move(color, vertex):
                     return
         raise ValueError("illegal move")
 
     def cmd_genmove(self, arguments):
-        parse_color(arguments)
-        # @@@ return a fixed vertex for now
-        return gtp_vertex((16, 16))
+        c = parse_color(arguments)
+        if c:
+            move = self._player.get_move(self._state, c)
+            self._state.make_move(c, move)
+            return gtp_vertex(move)
+        else:
+            raise ValueError("unknown player: {}".format(arguments))
+
+
+class MinimalState(object):
+
+    def __init__(self, size=19, komi=6.5):
+        self.size = size
+        self.komi = 6.5
+        self.board = [EMPTY] * (self.size * self.size)
+
+    def _flatten(self, vertex):
+        (x, y) = vertex
+        return (x - 1) * self.size + (y - 1)
+
+    def clear(self):
+        self.board = [EMPTY] * (self.size * self.size)
+
+    def make_move(self, color, vertex):
+        # no legality check other than the space being empty..
+        # no side-effects beyond placing the stone..
+        idx = self._flatten(vertex)
+        if self.board[idx] == EMPTY:
+            self.board[idx] = color
+            return True
+        else:
+            return False
+
+    def set_size(self, n):
+        self.size = n
+        self.clear()
+
+    def set_komi(self, k):
+        self.komi = k
+
+
+class MinimalPlayer(object):
+
+    def get_move(self, state, color):
+        # pass every time. At least it's legal
+        return (0, 0)
