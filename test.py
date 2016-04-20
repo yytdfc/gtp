@@ -8,7 +8,7 @@ from gtp import gtp_boolean, gtp_list, gtp_color, gtp_vertex, gtp_move
 
 from gtp import BLACK, WHITE
 from gtp import Engine
-from gtp import MinimalState, MinimalPlayer
+from gtp import MinimalGame
 
 
 class PreProcessingTest(unittest.TestCase):
@@ -70,7 +70,7 @@ class FormatTest(unittest.TestCase):
 class CommandsTest(unittest.TestCase):
 
     def setUp(self):
-        self.engine = Engine(MinimalState(), MinimalPlayer())
+        self.engine = Engine(MinimalGame())
 
     def test_admin_commands(self):
         response = self.engine.send("foo\n")

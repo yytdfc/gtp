@@ -3,9 +3,9 @@
 [![Build Status](https://travis-ci.org/jtauber/gtp.svg)](https://travis-ci.org/jtauber/gtp)
 [![Coverage Status](https://coveralls.io/repos/jtauber/gtp/badge.svg?branch=master&service=github)](https://coveralls.io/github/jtauber/gtp?branch=master)
 
-Python implementation of Go Text Protocol that can interface with arbitrary player and state implementations, provided that they conform to the following interface
+Python implementation of Go Text Protocol that can interface with arbitrary game logic implementations (state and move selection), provided that it conforms to the following interface
 
-## State interface
+## Game logic interface
 
 `clear()` : clear the board, scores, and history
 
@@ -15,6 +15,4 @@ Python implementation of Go Text Protocol that can interface with arbitrary play
 
 `set_komi(k)` : set komi value to `k`
 
-## Player interface
-
-`get_move(state, c)` : choose a move for color `c` given the state object. Returns a tuple `(x,y)`, where `(0,0)` indicates a PASS
+`get_move(c)` : choose a move for color `c`. Returns a tuple `(x,y)`, where `(0,0)` indicates a PASS

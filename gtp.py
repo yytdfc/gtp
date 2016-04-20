@@ -127,15 +127,14 @@ def format_error(message_id, response):
 
 class Engine(object):
 
-    def __init__(self, state_obj, player_obj):
+    def __init__(self, game_obj):
 
         self.size = 19
         self.komi = 6.5
 
-        self._state = state_obj
-        self._player = player_obj
+        self._game = game_obj
 
-        self._state.clear()
+        self._game.clear()
 
         self.disconnect = False
 
@@ -184,18 +183,18 @@ class Engine(object):
             size = int(arguments)
             if MIN_BOARD_SIZE <= size <= MAX_BOARD_SIZE:
                 self.size = size
-                self._state.set_size(size)
+                self._game.set_size(size)
             else:
                 raise ValueError("unacceptable size")
 
     def cmd_clear_board(self, arguments):
-        self._state.clear()
+        self._game.clear()
 
     def cmd_komi(self, arguments):
         try:
             komi = float(arguments)
             self.komi = komi
-            self._state.set_komi(komi)
+            self._game.set_komi(komi)
         except ValueError:
             raise ValueError("syntax error")
 
@@ -204,21 +203,21 @@ class Engine(object):
         if move:
             color, vertex = move
             if self.vertex_in_range(vertex):
-                if self._state.make_move(color, vertex):
+                if self._game.make_move(color, vertex):
                     return
         raise ValueError("illegal move")
 
     def cmd_genmove(self, arguments):
         c = parse_color(arguments)
         if c:
-            move = self._player.get_move(self._state, c)
-            self._state.make_move(c, move)
+            move = self._game.get_move(c)
+            self._game.make_move(c, move)
             return gtp_vertex(move)
         else:
             raise ValueError("unknown player: {}".format(arguments))
 
 
-class MinimalState(object):
+class MinimalGame(object):
 
     def __init__(self, size=19, komi=6.5):
         self.size = size
@@ -249,9 +248,6 @@ class MinimalState(object):
     def set_komi(self, k):
         self.komi = k
 
-
-class MinimalPlayer(object):
-
-    def get_move(self, state, color):
+    def get_move(self, color):
         # pass every time. At least it's legal
         return (0, 0)
