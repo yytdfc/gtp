@@ -127,14 +127,16 @@ def format_error(message_id, response):
 
 class Engine(object):
 
-    def __init__(self, game_obj):
+    def __init__(self, game_obj, name="gtp (python library)", version="0.1"):
 
         self.size = 19
         self.komi = 6.5
 
         self._game = game_obj
-
         self._game.clear()
+
+        self._name = name
+        self._version = version
 
         self.disconnect = False
 
@@ -164,10 +166,10 @@ class Engine(object):
         return 2
 
     def cmd_name(self, arguments):
-        return "gtp (python library)"
+        return self._name
 
     def cmd_version(self, arguments):
-        return "0.1"
+        return self._version
 
     def cmd_known_command(self, arguments):
         return gtp_boolean(arguments in self.known_commands)
