@@ -206,7 +206,7 @@ class Engine(object):
             color, vertex = move
             if self.vertex_in_range(vertex):
                 if self._game.make_move(color, vertex):
-                    return
+                    return True
         raise ValueError("illegal move")
 
     def cmd_genmove(self, arguments):
