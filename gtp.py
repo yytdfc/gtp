@@ -127,7 +127,7 @@ def format_error(message_id, response):
 
 class Engine(object):
 
-    def __init__(self, game_obj, name="gtp (python library)", version="0.1"):
+    def __init__(self, game_obj, name="gtp (python library)", version="0.2"):
 
         self.size = 19
         self.komi = 6.5

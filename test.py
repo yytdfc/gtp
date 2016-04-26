@@ -85,7 +85,7 @@ class CommandsTest(unittest.TestCase):
         self.assertEqual(response, "=2 gtp (python library)\n\n")
 
         response = self.engine.send("3 version\n")
-        self.assertEqual(response, "=3 0.1\n\n")
+        self.assertEqual(response, "=3 0.2\n\n")
 
         response = self.engine.send("4 known_command name\n")
         self.assertEqual(response, "=4 true\n\n")
