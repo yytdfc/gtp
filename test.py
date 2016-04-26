@@ -105,6 +105,8 @@ class CommandsTest(unittest.TestCase):
         self.assertEqual(response, "?7 unacceptable size\n\n")
         response = self.engine.send("8 boardsize 19")
         self.assertEqual(response, "=8\n\n")
+        response = self.engine.send("9 boardsize foo")
+        self.assertEqual(response, "?9 non digit size\n\n")
 
         response = self.engine.send("9 clear_board")
         self.assertEqual(response, "=9\n\n")
