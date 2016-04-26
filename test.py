@@ -8,6 +8,7 @@ from gtp import gtp_boolean, gtp_list, gtp_color, gtp_vertex, gtp_move
 
 from gtp import BLACK, WHITE
 from gtp import Engine
+from gtp import MinimalGame
 
 
 class PreProcessingTest(unittest.TestCase):
@@ -69,7 +70,7 @@ class FormatTest(unittest.TestCase):
 class CommandsTest(unittest.TestCase):
 
     def setUp(self):
-        self.engine = Engine()
+        self.engine = Engine(MinimalGame())
 
     def test_admin_commands(self):
         response = self.engine.send("foo\n")
@@ -122,7 +123,7 @@ class CommandsTest(unittest.TestCase):
 
         response = self.engine.send("13 genmove white")
         # test player will always return this
-        self.assertEqual(response, "=13 Q16\n\n")
+        self.assertEqual(response, "=13 PASS\n\n")
 
         response = self.engine.send("14 play black Z25")
         self.assertEqual(response, "?14 illegal move\n\n")
