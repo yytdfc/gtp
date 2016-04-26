@@ -52,7 +52,8 @@ class GTPFacade(object):
         self.gtp_subprocess.send("clear_board\n")
 
     def genmove(self, color):
-        message = self.gtp_subprocess.send("genmove {}\n".format(gtp_color(color)))
+        message = self.gtp_subprocess.send(
+            "genmove {}\n".format(gtp_color(color)))
         assert message[0] == "="
         return parse_vertex(message[1:].strip())
 
