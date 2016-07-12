@@ -135,6 +135,9 @@ class CommandsTest(unittest.TestCase):
         response = self.engine.send("16 play black pass")
         self.assertEqual(response, "=16\n\n")
 
+        response = self.engine.send("17 genmove orange")
+        self.assertEqual(response, "?17 unknown player: orange\n\n")
+
 
 if __name__ == "__main__":
     unittest.main()
