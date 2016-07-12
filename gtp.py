@@ -155,6 +155,8 @@ class Engine(object):
             return format_error(message_id, "unknown command")
 
     def vertex_in_range(self, vertex):
+        if vertex == PASS:
+            return True
         if 1 <= vertex[0] <= self.size and 1 <= vertex[1] <= self.size:
             return True
         else:
