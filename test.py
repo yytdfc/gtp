@@ -6,7 +6,7 @@ from gtp import pre_engine, pre_controller
 from gtp import parse_message, parse_move
 from gtp import gtp_boolean, gtp_list, gtp_color, gtp_vertex, gtp_move
 
-from gtp import BLACK, WHITE
+from gtp import BLACK, WHITE, PASS
 from gtp import Engine
 from gtp import MinimalGame
 
@@ -44,6 +44,7 @@ class ParseTest(unittest.TestCase):
         self.assertFalse(parse_move("B X"))
         self.assertFalse(parse_move("B"))
         self.assertEqual(parse_move("WHITE q16 XXX"), (WHITE, (16, 16)))
+        self.assertEqual(parse_move("black pass"), (BLACK, PASS))
 
 
 class FormatTest(unittest.TestCase):
@@ -130,6 +131,9 @@ class CommandsTest(unittest.TestCase):
 
         response = self.engine.send("15 play white D4")
         self.assertEqual(response, "?15 illegal move\n\n")
+
+        response = self.engine.send("16 play black pass")
+        self.assertEqual(response, "=16\n\n")
 
 
 if __name__ == "__main__":
