@@ -240,6 +240,8 @@ class MinimalGame(object):
     def make_move(self, color, vertex):
         # no legality check other than the space being empty..
         # no side-effects beyond placing the stone..
+        if vertex == PASS:
+            return True  # noop
         idx = self._flatten(vertex)
         if self.board[idx] == EMPTY:
             self.board[idx] = color
