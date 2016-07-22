@@ -6,7 +6,7 @@ from gtp import pre_engine, pre_controller
 from gtp import parse_message, parse_move
 from gtp import gtp_boolean, gtp_list, gtp_color, gtp_vertex, gtp_move
 
-from gtp import BLACK, WHITE, PASS
+from gtp import BLACK, WHITE, PASS, RESIGN
 from gtp import Engine
 from gtp import MinimalGame
 
@@ -63,6 +63,8 @@ class FormatTest(unittest.TestCase):
     def test_gtp_vertex(self):
         self.assertEqual(gtp_vertex((4, 4)), "D4")
         self.assertEqual(gtp_vertex((16, 16)), "Q16")
+        self.assertEqual(gtp_vertex(PASS), "pass")
+        self.assertEqual(gtp_vertex(RESIGN), "resign")
 
     def test_gtp_move(self):
         self.assertEqual(gtp_move(BLACK, (3, 2)), "B C2")
@@ -124,7 +126,7 @@ class CommandsTest(unittest.TestCase):
 
         response = self.engine.send("13 genmove white")
         # test player will always return this
-        self.assertEqual(response, "=13 PASS\n\n")
+        self.assertEqual(response, "=13 pass\n\n")
 
         response = self.engine.send("14 play black Z25")
         self.assertEqual(response, "?14 illegal move\n\n")

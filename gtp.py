@@ -29,7 +29,9 @@ def gtp_color(color):
 
 def gtp_vertex(vertex):
     if vertex == PASS:
-        return "PASS"
+        return "pass"
+    elif vertex == RESIGN:
+        return "resign"
     else:
         x, y = vertex
         return "{}{}".format("ABCDEFGHJKLMNOPQRSTYVWYZ"[x - 1], y)
@@ -60,6 +62,7 @@ BLACK = +1
 EMPTY = 0
 
 PASS = (0, 0)
+RESIGN = "resign"
 
 
 def parse_color(color):
