@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="pygtp",
-    version="0.3",
+    version="0.4",
     description="Python library for Go Text Protocol controllers and engines",
     license="MIT",
     url="http://github.com/jtauber/gtp",
@@ -16,6 +16,7 @@ setup(
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Games/Entertainment :: Board Games",
         "Topic :: Utilities",
     ],
