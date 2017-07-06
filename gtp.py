@@ -79,6 +79,8 @@ def parse_vertex(vertex_string):
         return False
     elif vertex_string.lower() == "pass":
         return PASS
+    elif vertex_string.lower() == RESIGN:
+        return RESIGN
     elif len(vertex_string) > 1:
         x = "abcdefghjklmnopqrstuvwxyz".find(vertex_string[0].lower()) + 1
         if x == 0:
